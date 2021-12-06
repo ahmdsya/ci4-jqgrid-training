@@ -194,8 +194,8 @@ class Pelanggan extends BaseController
 		$limit   = $_GET['limit'] - $start;
 		$getData = json_decode(base64_decode($_GET['data']));
 		$myData  = array_slice($getData, $start, $limit);
-		$sidx    = isset($_GET['sidx'])?$_GET['sidx']:'nama';
-		$sord    = isset($_GET['sord'])?$_GET['sord']:'';
+		$sidx    = ($_GET['sidx'] == "" ? 'nama' : $_GET['sidx']);
+		$sord    = ($_GET['sord'] == "" ? 'asc' : $_GET['sord']);
 		$type    = isset($_GET['type'])?$_GET['type']:false;
 
 		$pelangganID = [];

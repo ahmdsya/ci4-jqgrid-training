@@ -287,7 +287,7 @@ $(document).ready(function () {
             .load(baseUrl+'/add')
             .dialog({
                 width   : 600,
-                height: 500,
+                height  : 500,
                 position: 'top',
                 modal   : true,
                 title   : "Add Data",
@@ -337,14 +337,15 @@ $(document).ready(function () {
                     <h5> Tentukan Baris </h5>
                     
                     <label> Dari: </label>
-                    <input type="number" min="1" name="start" value="${$(this).getInd($(this).getGridParam('selrow'))}" class="ui-widget-content ui-corner-all autonumeric" style="padding: 5px; text-transform: uppercase;" required>
+                    <input type="number" min="1" id="reportStart" name="start" value="${$(this).getInd($(this).getGridParam('selrow'))}" class="ui-widget-content ui-corner-all autonumeric" style="padding: 5px; text-transform: uppercase;" required>
 
                     <label> Sampai: </label>
-                    <input type="number" name="limit" value="${$(this).getGridParam('records')}" class="ui-widget-content ui-corner-all autonumeric" style="padding: 5px; text-transform: uppercase;" required>
+                    <input type="number" id="reportLimit" name="limit" value="${$(this).getGridParam('records')}" class="ui-widget-content ui-corner-all autonumeric" style="padding: 5px; text-transform: uppercase;" required>
                 </div>
             `)
             .dialog({
                 width   : 'auto',
+                height  : 250,
                 position: 'top',
                 modal   : true,
                 title   : "Report",
@@ -352,40 +353,13 @@ $(document).ready(function () {
                     {
                         text: "StimulSoft",
                         click: function () {
-                            let start = $(this).find('input[name=start]').val()
-                            let limit = $(this).find('input[name=limit]').val()
-
-                            if (parseInt(start) > parseInt(limit)) {
-                                return alert('Nilai "Sampai" harus lebih besar')
-                            }
-
-                            var sidx = $("#jqGrid").jqGrid('getGridParam','sortname');
-                            var sord = $("#jqGrid").jqGrid('getGridParam','sortorder');
-
-                            var getData = $('#jqGrid').jqGrid('getRowData');
-                            var data    = window.btoa(JSON.stringify(getData)); //base64 encode
-                            
-                            window.open(baseUrl+'/pelanggan/report?data='+data+'&start='+start+'&limit='+limit+'&sidx='+sidx+'&sord='+sord+'&type=stimulsoft')
+                            report('stimulsoft')
                         }
                     },
                     // {
                     // 	text: "Excel",
                     // 	click: function() {
-                    // 		// console.log('Excel')
-                    // 		let start = $(this).find('input[name=start]').val()
-                    // 		let limit = $(this).find('input[name=limit]').val()
-
-                    // 		if (parseInt(start) > parseInt(limit)) {
-                    // 			return alert('Nilai "Sampai" harus lebih besar')
-                    // 		}
-
-                    // 		var sidx = $("#jqGrid").jqGrid('getGridParam','sortname');
-                    // 		var sord = $("#jqGrid").jqGrid('getGridParam','sortorder');
-
-                    // 		var getData = $('#jqGrid').jqGrid('getRowData');
-                    // 		var data    = window.btoa(JSON.stringify(getData)); //base64 encode
-
-                    // 		window.open('<?= base_url() ?>home/report?data='+data+'&start='+start+'&limit='+limit+'&sidx='+sidx+'&sord='+sord+'&type=excel')
+                    // 		report('excel')
                     // 	}
                     // },
                     {
@@ -398,4 +372,22 @@ $(document).ready(function () {
             });
         }
     });
+
+    function report(type) {
+
+        let start = document.getElementById('reportStart').value
+        let limit = document.getElementById('reportLimit').value
+
+        if (parseInt(start) > parseInt(limit)) {
+            return alert('Nilai "Sampai" harus lebih besar')
+        }
+
+        var sidx = $("#jqGrid").jqGrid('getGridParam','sortname');
+        var sord = $("#jqGrid").jqGrid('getGridParam','sortorder');
+
+        var getData = $('#jqGrid').jqGrid('getRowData');
+        var data    = window.btoa(JSON.stringify(getData)); //base64 encode
+        
+        window.open(baseUrl+'/pelanggan/report?data='+data+'&start='+start+'&limit='+limit+'&sidx='+sidx+'&sord='+sord+'&type='+type)
+    }
 });
