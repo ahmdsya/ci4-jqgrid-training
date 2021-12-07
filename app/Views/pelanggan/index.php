@@ -28,6 +28,6 @@
 <?= $this->section('script') ?>
 
     <script> var baseUrl = '<?= base_url() ?>' </script>
-    <script src="/js/script.js"></script>
+    <script src="<?= base_url() ?>/public/js/script.js"></script>
     
 <?= $this->endSection() ?>
