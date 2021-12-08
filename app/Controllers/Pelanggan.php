@@ -115,7 +115,13 @@ class Pelanggan extends BaseController
         ];
 
         //insert data pelanggan
-        $this->modelPelanggan->insert($dataPelanggan);
+        $insert = $this->modelPelanggan->insert($dataPelanggan);
+        if($insert === false){
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg' => $this->modelPelanggan->errors()]);
+        }
+
         $id = $this->modelPelanggan->insertID();
 
         //insert data pesanan baru
@@ -152,7 +158,12 @@ class Pelanggan extends BaseController
             'alamat'      => $this->request->getPost('alamat'),
         ];
 
-        $this->modelPelanggan->update($id, $dataPelanggan);
+        $update = $this->modelPelanggan->update($id, $dataPelanggan);
+        if($update === false){
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg' => $this->modelPelanggan->errors()]);
+        }
 
         //delete data pesanan
         $this->modelPesanan->where('pelanggan_id', $id)->delete();
@@ -219,8 +230,11 @@ class Pelanggan extends BaseController
 			'dataPelanggan' => $dataPelanggan
 		];
 
-        return view('pelanggan/report', $data);
-        // return $this->response->setJSON($data);
+        if($type == "stimulsoft"){
+            return view('pelanggan/report', $data);
+        }else{
+            return view('pelanggan/excel', $data);
+        }        
     }
 
     public function truncate()

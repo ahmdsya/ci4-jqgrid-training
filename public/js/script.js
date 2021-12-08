@@ -250,14 +250,25 @@ $(document).ready(function () {
                                     data: data,
                                     dataType: "text",
                                     success: function (result) {
-                                        $("#Dialog").dialog('close');
-                                        $("#jqGrid").jqGrid('setGridParam', {
-                                            datatype: 'json',
-                                            postData: {
-                                                filters: []
-                                            },
-                                            search: false,
-                                        }).trigger('reloadGrid');
+                                        var res = JSON.parse(result)
+                                        var msg = res.msg
+                                        if(res.status == 'error'){
+                                            $('#tgl_pesanan').append(`<p style="color:red;">${(msg.tgl_pesanan ? msg.tgl_pesanan : "")}</p>`)
+                                            $('#nama').append(`<p style="color:red;">${(msg.nama ? msg.nama : "")}</p>`)
+                                            $('#nik').append(`<p style="color:red;">${(msg.nik ? msg.nik : "")}</p>`)
+                                            $('#hp').append(`<p style="color:red;">${(msg.hp ? msg.hp : "")}</p>`)
+                                            $('#email').append(`<p style="color:red;">${(msg.email ? msg.email : "")}</p>`)
+                                            $('#alamat').append(`<p style="color:red;">${(msg.alamat ? msg.alamat : "")}</p>`)
+                                        }else{
+                                            $("#Dialog").dialog('close');
+                                            $("#jqGrid").jqGrid('setGridParam', {
+                                                datatype: 'json',
+                                                postData: {
+                                                    filters: []
+                                                },
+                                                search: false,
+                                            }).trigger('reloadGrid');
+                                        }
                                     }
                                 });
                             }
@@ -295,21 +306,31 @@ $(document).ready(function () {
                         text: "Submit",
                         click: function () {
                             var data = $('#storeForm').serialize()
-                            console.log(data)
                             $.ajax({
                                 type: "POST",
                                 url: baseUrl+"/store",
                                 data: data,
                                 dataType: "text",
                                 success: function (result) {
-                                    $("#Dialog").dialog('close');
-                                    $("#jqGrid").jqGrid('setGridParam', {
-                                        datatype: 'json',
-                                        postData: {
-                                            filters: []
-                                        },
-                                        search: false,
-                                    }).trigger('reloadGrid');
+                                    var res = JSON.parse(result)
+                                    var msg = res.msg
+                                    if(res.status == 'error'){
+                                        $('#tgl_pesanan').append(`<p style="color:red;">${(msg.tgl_pesanan ? msg.tgl_pesanan : "")}</p>`)
+                                        $('#nama').append(`<p style="color:red;">${(msg.nama ? msg.nama : "")}</p>`)
+                                        $('#nik').append(`<p style="color:red;">${(msg.nik ? msg.nik : "")}</p>`)
+                                        $('#hp').append(`<p style="color:red;">${(msg.hp ? msg.hp : "")}</p>`)
+                                        $('#email').append(`<p style="color:red;">${(msg.email ? msg.email : "")}</p>`)
+                                        $('#alamat').append(`<p style="color:red;">${(msg.alamat ? msg.alamat : "")}</p>`)
+                                    }else{
+                                        $("#Dialog").dialog('close');
+                                        $("#jqGrid").jqGrid('setGridParam', {
+                                            datatype: 'json',
+                                            postData: {
+                                                filters: []
+                                            },
+                                            search: false,
+                                        }).trigger('reloadGrid');
+                                    }
                                 }
                             });
                         }
@@ -356,12 +377,12 @@ $(document).ready(function () {
                             report('stimulsoft')
                         }
                     },
-                    // {
-                    // 	text: "Excel",
-                    // 	click: function() {
-                    // 		report('excel')
-                    // 	}
-                    // },
+                    {
+                    	text: "Excel",
+                    	click: function() {
+                    		report('excel')
+                    	}
+                    },
                     {
                         text: "Cancel",
                         click: function () {

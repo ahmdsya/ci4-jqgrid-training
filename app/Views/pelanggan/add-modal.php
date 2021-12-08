@@ -1,8 +1,16 @@
+<style type="text/css">
+	input, textarea {
+		text-transform: uppercase;
+		/* padding: 5px; */
+	}
+</style>
+
 <form id="storeForm">
     <div class="form-group row">
         <label for="edit_tgl_pesanan" class="col-sm-3 col-form-label">Tgl Pesanan</label>
         <div class="col-sm-9">
             <input type="date" class="form-control" name="tgl_pesanan" id="edit_tgl_pesanan">
+            <div id="tgl_pesanan" style="font-size: 10px;"></div>
         </div>
     </div>
 
@@ -10,6 +18,7 @@
         <label for="edit_nama" class="col-sm-3 col-form-label">Nama Lengkap</label>
         <div class="col-sm-9">
             <input type="text" class="form-control" name="nama" id="edit_nama">
+            <div id="nama" style="font-size: 10px;"></div>
         </div>
     </div>
 
@@ -17,6 +26,7 @@
         <label for="edit_nik" class="col-sm-3 col-form-label">NIK</label>
         <div class="col-sm-9">
             <input type="number" class="form-control" name="nik" id="edit_nik">
+            <div id="nik" style="font-size: 10px;"></div>
         </div>
     </div>
 
@@ -24,6 +34,7 @@
         <label for="edit_hp" class="col-sm-3 col-form-label">HP</label>
         <div class="col-sm-9">
             <input type="text" class="form-control" name="hp" id="edit_hp">
+            <div id="hp" style="font-size: 10px;"></div>
         </div>
     </div>
 
@@ -31,6 +42,7 @@
         <label for="edit_email" class="col-sm-3 col-form-label">Email</label>
         <div class="col-sm-9">
             <input type="email" class="form-control" name="email" id="edit_email">
+            <div id="email" style="font-size: 10px;"></div>
         </div>
     </div>
 
@@ -38,6 +50,7 @@
         <label for="edit_alamat" class="col-sm-3 col-form-label">Alamat</label>
         <div class="col-sm-9">
             <textarea id="edit_alamat" name="alamat" class="form-control"></textarea>
+            <div id="alamat" style="font-size: 10px;"></div>
         </div>
     </div>
 
@@ -123,6 +136,15 @@ function setNumericFormat() {
     $('.im-currency').inputmask('integer', {
         alias: 'numeric',
         groupSeparator: '.',
+        autoGroup: true,
+        digitsOptional: false,
+        allowMinus: false,
+        placeholder: '',
+    })
+
+    $('.im-numeric').inputmask('integer', {
+        alias: 'numeric',
+        groupSeparator: '',
         autoGroup: true,
         digitsOptional: false,
         allowMinus: false,

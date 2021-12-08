@@ -13,7 +13,7 @@ class Pelanggan_m extends Model
         'tgl_pesanan' => 'required',
         'nama'        => 'required',
         'nik'         => 'required|numeric',
-        'hp'          => 'required',
+        'hp'          => 'required|numeric',
         'email'       => 'required|valid_email',
         'alamat'      => 'required',
     ];
@@ -34,6 +34,7 @@ class Pelanggan_m extends Model
 
         'hp'        => [
             'required' => 'HP harus diisi.',
+            'numeric' => 'Hanya bisa diisi dengan angka'
         ],
 
         'email'        => [
