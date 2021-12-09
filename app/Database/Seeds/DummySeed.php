@@ -17,11 +17,11 @@ class DummySeed extends \CodeIgniter\Database\Seeder
 
             $dataPelanggan = [
                 'tgl_pesanan' => $faker->date($format = 'Y-m-d', $max = 'now'),
-                'nama' => $faker->name,
+                'nama' => strtoupper($faker->name),
                 'nik' => rand(),
                 'hp' => $faker->e164PhoneNumber,
-                'email' => $faker->email,
-                'alamat' => $faker->address
+                'email' => strtoupper($faker->email),
+                'alamat' => strtoupper($faker->address)
             ];
             $modelPelanggan->insert($dataPelanggan);
             $pelanggan_id = $modelPelanggan->insertID();
@@ -34,7 +34,7 @@ class DummySeed extends \CodeIgniter\Database\Seeder
 
                 $dataPesanan = [
                     'pelanggan_id' => $pelanggan_id,
-                    'nama_produk' => $produk[rand(0,9)],
+                    'nama_produk' => strtoupper($produk[rand(0,9)]),
                     'harga' => $harga,
                     'qty' => $qty,
                     'total_harga' => $harga*$qty

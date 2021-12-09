@@ -1,3 +1,6 @@
+let highlightSearch;
+let indexRow = 0;
+
 $(document).ready(function () {
     
     $("#jqGrid").jqGrid({
@@ -50,24 +53,34 @@ $(document).ready(function () {
             }
         ],
         loadComplete: function (data) {
-            rowNum = $("#jqGrid").jqGrid('getGridParam', 'rowNum');
-            ids = $("#jqGrid").jqGrid('getDataIDs');
-            $('#jqGrid').jqGrid('setSelection', ids[0]);
-            var index = 0
-            document.addEventListener("keydown", function(event) {
-                if(event.which == 38){ //tombol atas
-                    if(index != 0){
-                        $('#jqGrid').jqGrid('setSelection', ids[index = index-1]);
+            setTimeout(function () {
+                $(
+                    "#jqGrid tbody tr td:not([aria-describedby=jqGrid_rn])"
+                ).highlight(highlightSearch);
+
+                $("[id*=gs_]").on("input", function () {
+                    highlightSearch = $(this).val();
+                });
+
+                rowNum = $("#jqGrid").jqGrid('getGridParam', 'rowNum');
+                ids = $("#jqGrid").jqGrid('getDataIDs');
+                $('#jqGrid').jqGrid('setSelection', ids[indexRow]);
+                var index = 0
+                document.addEventListener("keydown", function(event) {
+                    if(event.which == 38){ //tombol atas
+                        if(index != 0){
+                            $('#jqGrid').jqGrid('setSelection', ids[index = index-1]);
+                        }
+                    }else if(event.which == 40){ //tombol bawah
+                        if(index != rowNum){
+                            $('#jqGrid').jqGrid('setSelection', ids[index = index+1]);
+                        }
                     }
-                }else if(event.which == 40){ //tombol bawah
-                    if(index != rowNum){
-                        $('#jqGrid').jqGrid('setSelection', ids[index = index+1]);
-                    }
-                }
+                })
             })
+            
         },
         onSelectRow: function(rowid, selected) {
-            // console.log(rowid)
             if(rowid != null) {
                 $("#jqGridDetails").jqGrid('setGridParam',{url: baseUrl+"/pesanan/"+rowid ,datatype: 'json'});
                 $("#jqGridDetails").trigger("reloadGrid");
@@ -82,8 +95,10 @@ $(document).ready(function () {
 		rownumbers: true,
         loadonce: false,
         gridview: true,
+        sortable: true,
         emptyrecords: 'Tidak Ada data.',
-        pager: "#jqGridPager"
+        pager: "#jqGridPager",
+        // toolbar: [true, "top"],
     })
     .jqGrid('filterToolbar', {
         stringResult: true,
@@ -133,11 +148,7 @@ $(document).ready(function () {
 
     $('#keyword').on('keyup', function(){
         var value = $(this).val();
-        document.getElementById('gs_nama').value   = '';
-        document.getElementById('gs_nik').value    = '';
-        document.getElementById('gs_hp').value     = '';
-        document.getElementById('gs_email').value  = '';
-        document.getElementById('gs_alamat').value = '';
+        $('[id*="gs_"]').val("");
         $("#jqGrid").jqGrid('setGridParam', {
             url: baseUrl+'/get',
             editurl: 'clientArray',
@@ -148,6 +159,7 @@ $(document).ready(function () {
             },
             search: true,
         }).trigger('reloadGrid',[{page:1}]);
+        highlightSearch = value
     });
 
     $('#gsh_jqGrid_rn').append(
@@ -155,12 +167,7 @@ $(document).ready(function () {
     );
 
     $("#clearBtn").click(function () {
-        document.getElementById('gs_nama').value   = '';
-        document.getElementById('gs_nik').value    = '';
-        document.getElementById('gs_hp').value     = '';
-        document.getElementById('gs_email').value  = '';
-        document.getElementById('gs_alamat').value = '';
-        document.getElementById('gs_tgl_pesanan').value = '';
+        $('[id*="gs_"]').val("");
         document.getElementById('keyword').value   = '';
         $("#jqGrid").jqGrid('setGridParam', {
             datatype: 'json',
@@ -169,6 +176,7 @@ $(document).ready(function () {
             },
             search: false,
         }).trigger('reloadGrid');
+        highlightSearch = "undefined";
     });
 
     //btn delete
@@ -323,13 +331,29 @@ $(document).ready(function () {
                                         $('#alamat').append(`<p style="color:red;">${(msg.alamat ? msg.alamat : "")}</p>`)
                                     }else{
                                         $("#Dialog").dialog('close');
-                                        $("#jqGrid").jqGrid('setGridParam', {
-                                            datatype: 'json',
-                                            postData: {
-                                                filters: []
+                                        
+                                        $.ajax({
+                                            url:
+                                                baseUrl +
+                                                "/pelanggan/show/" +
+                                                res.nama +
+                                                "/" +
+                                                $("#jqGrid").jqGrid("getGridParam", "sortorder") +
+                                                "/" +
+                                                $("#jqGrid").jqGrid("getGridParam", "postData").rows,
+                                            type: "GET",
+                                            dataType: "JSON",
+                                            success: function (result2) {
+                                                // var res2 = JSON.parse(result2)
+                                                if (result2.row) {
+                                                    indexRow = result2.row - 1;
+                                                }
+                                                selectedPage = result2.page;
+                                                setTimeout(function () {
+                                                    $("#jqGrid").trigger("reloadGrid", [{ page: selectedPage }]);
+                                                }, 50);
                                             },
-                                            search: false,
-                                        }).trigger('reloadGrid');
+                                        });
                                     }
                                 }
                             });
@@ -403,12 +427,11 @@ $(document).ready(function () {
             return alert('Nilai "Sampai" harus lebih besar')
         }
 
-        var sidx = $("#jqGrid").jqGrid('getGridParam','sortname');
-        var sord = $("#jqGrid").jqGrid('getGridParam','sortorder');
+        var sidx   = $("#jqGrid").jqGrid('getGridParam','sortname');
+        var sord   = $("#jqGrid").jqGrid('getGridParam','sortorder');
+        var filter = ($("#jqGrid").getGridParam("postData").filters ? $("#jqGrid").getGridParam("postData").filters : '');
+        var global = document.getElementById('keyword').value
 
-        var getData = $('#jqGrid').jqGrid('getRowData');
-        var data    = window.btoa(JSON.stringify(getData)); //base64 encode
-        
-        window.open(baseUrl+'/pelanggan/report?data='+data+'&start='+start+'&limit='+limit+'&sidx='+sidx+'&sord='+sord+'&type='+type)
+        window.open(baseUrl+'/pelanggan/report?global='+global+'&filter='+filter+'&start='+start+'&limit='+limit+'&sidx='+sidx+'&sord='+sord+'&type='+type)
     }
 });

@@ -67,6 +67,19 @@ class Pelanggan extends BaseController
         return $this->response->setJSON($data);
     }
 
+    public function show($nama, $sort_order, $limit) {
+        $db = $this->modelPelanggan->builder();
+
+        $operator = ($sort_order == 'asc') ? '<=' : '>=';
+
+        $row   = $db->where('nama '.$operator, $nama)->countAllResults();
+        $page  = ceil($row / $limit);
+       
+        if ($page > 1) $row -= $limit * ($page - 1);
+
+        return $this->response->setJSON(['page' => $page,'row' => $row]);
+	}
+
     public function add()
     {
         return view('pelanggan/add-modal');
@@ -107,11 +120,11 @@ class Pelanggan extends BaseController
     {
         $dataPelanggan = [
             'tgl_pesanan' => date('Y-m-d', strtotime($this->request->getPost('tgl_pesanan'))),
-            'nama'        => $this->request->getPost('nama'),
+            'nama'        => strtoupper($this->request->getPost('nama')),
             'nik'         => $this->request->getPost('nik'),
             'hp'          => $this->request->getPost('hp'),
-            'email'       => $this->request->getPost('email'),
-            'alamat'      => $this->request->getPost('alamat'),
+            'email'       => strtoupper($this->request->getPost('email')),
+            'alamat'      => strtoupper($this->request->getPost('alamat')),
         ];
 
         //insert data pelanggan
@@ -132,7 +145,7 @@ class Pelanggan extends BaseController
         for ($i=0; $i < count($nama_produk); $i++) { 
             $dataPesanan = [
                 'pelanggan_id' => $id,
-                'nama_produk'  => $nama_produk[$i],
+                'nama_produk'  => strtoupper($nama_produk[$i]),
                 'harga'        => str_replace('.', '', $harga[$i]),
                 'qty'          => $qty[$i],
                 'total_harga'  => str_replace('.', '', $harga[$i]) * $qty[$i]
@@ -144,7 +157,7 @@ class Pelanggan extends BaseController
         //delete data pesanan yang kosong
         $this->modelPesanan->where('nama_produk', '')->delete();
 
-        return $this->response->setJSON(['msg' => 'success']);
+        return $this->response->setJSON(['status' => 'success', 'nama' => strtoupper($this->request->getPost('nama'))]);
     }
 
     public function update($id)
@@ -203,23 +216,31 @@ class Pelanggan extends BaseController
     {
         $start   = ($_GET['start'] - 1) ?? 0;
 		$limit   = $_GET['limit'] - $start;
-		$getData = json_decode(base64_decode($_GET['data']));
-		$myData  = array_slice($getData, $start, $limit);
 		$sidx    = ($_GET['sidx'] == "" ? 'nama' : $_GET['sidx']);
 		$sord    = ($_GET['sord'] == "" ? 'asc' : $_GET['sord']);
 		$type    = isset($_GET['type'])?$_GET['type']:false;
-
-		$pelangganID = [];
-
-		foreach($myData as $data){
-			$pelangganID[] = (int)$data->id;
-		}
+        $filters = ($this->request->getGet('filter') !== null ? json_decode($this->request->getGet('filter'), true) : false);
 		
 		$pelanggan = $this->modelPelanggan->builder();
 		$pesanan   = $this->modelPesanan->builder();
 
-		$pelanggan->whereIn('id', $pelangganID);
+        if($filters){
+            foreach($filters['rules'] as $rule){
+
+                $field     = $rule['field'];
+                $ops       = "LIKE";
+                $searchstr = $rule['data'];
+                $searchstr = '%'.$searchstr.'%';
+                
+                $where[] = "$field $ops '$searchstr' ";
+            }
+
+            $where = implode($filters['groupOp']." ", $where);
+            $pelanggan->where($where);
+        }
+
 		$pelanggan->orderBy($sidx, $sord);
+        $pelanggan->limit($limit, $start);
 		$dataPelanggan = $pelanggan->get()->getResult();
 
 		foreach($dataPelanggan as $pelanggan){
@@ -229,6 +250,9 @@ class Pelanggan extends BaseController
 		$data = [
 			'dataPelanggan' => $dataPelanggan
 		];
+
+        // return $this->response->setJSON(['count' => count($dataPelanggan), 'data' => $dataPelanggan]);
+        // die;
 
         if($type == "stimulsoft"){
             return view('pelanggan/report', $data);
@@ -243,5 +267,17 @@ class Pelanggan extends BaseController
         $this->modelPesanan->truncate();
 
         echo "OK";
+    }
+
+    public function test()
+    {
+        $limit = 10;
+        $db    = $this->modelPelanggan->builder();
+        $row   = $db->where('nama <=', 'DDDD')->countAllResults();
+        $page  = ceil($row / $limit);
+       
+        if ($page > 1) $row -= $limit * ($page - 1);
+
+        return $this->response->setJSON(['page' => $page,'row' => $row]);
     }
 }
