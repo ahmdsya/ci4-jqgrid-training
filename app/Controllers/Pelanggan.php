@@ -132,10 +132,54 @@ class Pelanggan extends BaseController
         if($insert === false){
             return $this->response->setJSON([
                 'status' => 'error',
-                'msg' => $this->modelPelanggan->errors()]);
+                'msg'    => $this->modelPelanggan->errors()]);
         }
 
         $id = $this->modelPelanggan->insertID();
+
+        //insert data pesanan baru
+        $nama_produk = $this->request->getPost('nama_produk');
+        $harga       = $this->request->getPost('harga');
+        $qty         = $this->request->getPost('qty');
+
+        for ($i=0; $i < count($nama_produk); $i++) { 
+            $dataPesanan = [
+                'pelanggan_id' => $id,
+                'nama_produk'  => strtoupper($nama_produk[$i]),
+                'harga'        => str_replace('.', '', $harga[$i]),
+                'qty'          => str_replace('.', '', $qty[$i]),
+                'total_harga'  => str_replace('.', '', $harga[$i]) * $qty[$i]
+            ];
+
+            $this->modelPesanan->insert($dataPesanan);
+        }
+
+        //delete data pesanan yang kosong
+        $this->modelPesanan->where('nama_produk', '')->delete();
+
+        return $this->response->setJSON(['status' => 'success', 'nama' => strtoupper($this->request->getPost('nama'))]);
+    }
+
+    public function update($id)
+    {
+        $dataPelanggan = [
+            'tgl_pesanan' => date('Y-m-d', strtotime($this->request->getPost('tgl_pesanan'))),
+            'nama'        => strtoupper($this->request->getPost('nama')),
+            'nik'         => $this->request->getPost('nik'),
+            'hp'          => $this->request->getPost('hp'),
+            'email'       => strtoupper($this->request->getPost('email')),
+            'alamat'      => strtoupper($this->request->getPost('alamat')),
+        ];
+
+        $update = $this->modelPelanggan->update($id, $dataPelanggan);
+        if($update === false){
+            return $this->response->setJSON([
+                'status' => 'error',
+                'msg'    => $this->modelPelanggan->errors()]);
+        }
+
+        //delete data pesanan
+        $this->modelPesanan->where('pelanggan_id', $id)->delete();
 
         //insert data pesanan baru
         $nama_produk = $this->request->getPost('nama_produk');
@@ -160,50 +204,6 @@ class Pelanggan extends BaseController
         return $this->response->setJSON(['status' => 'success', 'nama' => strtoupper($this->request->getPost('nama'))]);
     }
 
-    public function update($id)
-    {
-        $dataPelanggan = [
-            'tgl_pesanan' => date('Y-m-d', strtotime($this->request->getPost('tgl_pesanan'))),
-            'nama'        => $this->request->getPost('nama'),
-            'nik'         => $this->request->getPost('nik'),
-            'hp'          => $this->request->getPost('hp'),
-            'email'       => $this->request->getPost('email'),
-            'alamat'      => $this->request->getPost('alamat'),
-        ];
-
-        $update = $this->modelPelanggan->update($id, $dataPelanggan);
-        if($update === false){
-            return $this->response->setJSON([
-                'status' => 'error',
-                'msg' => $this->modelPelanggan->errors()]);
-        }
-
-        //delete data pesanan
-        $this->modelPesanan->where('pelanggan_id', $id)->delete();
-
-        //insert data pesanan baru
-        $nama_produk = $this->request->getPost('nama_produk');
-        $harga       = $this->request->getPost('harga');
-        $qty         = $this->request->getPost('qty');
-
-        for ($i=0; $i < count($nama_produk); $i++) { 
-            $dataPesanan = [
-                'pelanggan_id' => $id,
-                'nama_produk'  => $nama_produk[$i],
-                'harga'        => str_replace('.', '', $harga[$i]),
-                'qty'          => $qty[$i],
-                'total_harga'  => str_replace('.', '', $harga[$i]) * $qty[$i]
-            ];
-
-            $this->modelPesanan->insert($dataPesanan);
-        }
-
-        //delete data pesanan yang kosong
-        $this->modelPesanan->where('nama_produk', '')->delete();
-
-        return $this->response->setJSON(['msg' => 'success']);
-    }
-
     public function destroy($id)
     {
         $this->modelPelanggan->where('id', $id)->delete();
@@ -224,6 +224,7 @@ class Pelanggan extends BaseController
 		$pelanggan = $this->modelPelanggan->builder();
 		$pesanan   = $this->modelPesanan->builder();
 
+        $where = [];
         if($filters){
             foreach($filters['rules'] as $rule){
 
@@ -251,9 +252,6 @@ class Pelanggan extends BaseController
 			'dataPelanggan' => $dataPelanggan
 		];
 
-        // return $this->response->setJSON(['count' => count($dataPelanggan), 'data' => $dataPelanggan]);
-        // die;
-
         if($type == "stimulsoft"){
             return view('pelanggan/report', $data);
         }else{
@@ -269,15 +267,15 @@ class Pelanggan extends BaseController
         echo "OK";
     }
 
-    public function test()
-    {
-        $limit = 10;
-        $db    = $this->modelPelanggan->builder();
-        $row   = $db->where('nama <=', 'DDDD')->countAllResults();
-        $page  = ceil($row / $limit);
+    // public function test()
+    // {
+    //     $limit = 10;
+    //     $db    = $this->modelPelanggan->builder();
+    //     $row   = $db->where('nama <=', 'DDDD')->countAllResults();
+    //     $page  = ceil($row / $limit);
        
-        if ($page > 1) $row -= $limit * ($page - 1);
+    //     if ($page > 1) $row -= $limit * ($page - 1);
 
-        return $this->response->setJSON(['page' => $page,'row' => $row]);
-    }
+    //     return $this->response->setJSON(['page' => $page,'row' => $row]);
+    // }
 }

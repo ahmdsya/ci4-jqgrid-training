@@ -7,7 +7,15 @@
         <title>jqGrid Loading Data - JSON</title>
 
         <style>
+            input, textarea {
+                text-transform: uppercase;
+                /* padding: 5px; */
+            }
             .highlight { background-color: greenyellow }
+            /* mark{
+                background: greenyellow;
+                color: black;
+            } */
         </style>
     </head>
 

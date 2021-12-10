@@ -1,5 +1,6 @@
 let highlightSearch;
 let indexRow = 0;
+let timeout = null
 
 $(document).ready(function () {
     
@@ -56,7 +57,10 @@ $(document).ready(function () {
             setTimeout(function () {
                 $(
                     "#jqGrid tbody tr td:not([aria-describedby=jqGrid_rn])"
-                ).highlight(highlightSearch);
+                )
+                .highlight(highlightSearch);
+                // .mark(highlightSearch);
+                
 
                 $("[id*=gs_]").on("input", function () {
                     highlightSearch = $(this).val();
@@ -78,7 +82,6 @@ $(document).ready(function () {
                     }
                 })
             })
-            
         },
         onSelectRow: function(rowid, selected) {
             if(rowid != null) {
@@ -106,6 +109,9 @@ $(document).ready(function () {
         searchOnEnter: false,
         beforeSearch: function(){
             document.getElementById('keyword').value = '';
+        },
+        afterClear: function(){
+            highlightSearch = ''
         }
     })
     .navGrid('#jqGridPager',
@@ -146,39 +152,6 @@ $(document).ready(function () {
     });
     //end master detail
 
-    $('#keyword').on('keyup', function(){
-        var value = $(this).val();
-        $('[id*="gs_"]').val("");
-        $("#jqGrid").jqGrid('setGridParam', {
-            url: baseUrl+'/get',
-            editurl: 'clientArray',
-            mtype: "GET",
-            datatype: 'json',
-            postData: {
-                filters: '{"groupOp":"OR","rules":[{"field":"nama","op":"in","data":"'+value+'"},{"field":"nik","op":"in","data":"'+value+'"},{"field":"hp","op":"in","data":"'+value+'"},{"field":"email","op":"in","data":"'+value+'"},{"field":"alamat","op":"in","data":"'+value+'"}]}'
-            },
-            search: true,
-        }).trigger('reloadGrid',[{page:1}]);
-        highlightSearch = value
-    });
-
-    $('#gsh_jqGrid_rn').append(
-        '<button id="clearBtn" data-toggle="tooltip" title="Clear Search Filter!">X</button>'
-    );
-
-    $("#clearBtn").click(function () {
-        $('[id*="gs_"]').val("");
-        document.getElementById('keyword').value   = '';
-        $("#jqGrid").jqGrid('setGridParam', {
-            datatype: 'json',
-            postData: {
-                filters: []
-            },
-            search: false,
-        }).trigger('reloadGrid');
-        highlightSearch = "undefined";
-    });
-
     //btn delete
     $('#jqGrid').navButtonAdd('#jqGridPager', {
         caption: "",
@@ -202,16 +175,10 @@ $(document).ready(function () {
                                 $.ajax({
                                     type: "POST",
                                     url: baseUrl+"/destroy/"+id,
-                                    dataType: "text",
+                                    dataType: "JSON",
                                     success: function (result) {
                                         $("#Dialog").dialog('close');
-                                        $("#jqGrid").jqGrid('setGridParam', {
-                                            datatype: 'json',
-                                            postData: {
-                                                filters: []
-                                            },
-                                            search: false,
-                                        }).trigger('reloadGrid');
+                                        btnClear()
                                     }
                                 });
                             }
@@ -256,26 +223,44 @@ $(document).ready(function () {
                                     type: "POST",
                                     url: baseUrl+"/update/"+id,
                                     data: data,
-                                    dataType: "text",
-                                    success: function (result) {
-                                        var res = JSON.parse(result)
+                                    dataType: "JSON",
+                                    success: function (res) {
+                                        // var res = JSON.parse(result)
                                         var msg = res.msg
                                         if(res.status == 'error'){
-                                            $('#tgl_pesanan').append(`<p style="color:red;">${(msg.tgl_pesanan ? msg.tgl_pesanan : "")}</p>`)
-                                            $('#nama').append(`<p style="color:red;">${(msg.nama ? msg.nama : "")}</p>`)
-                                            $('#nik').append(`<p style="color:red;">${(msg.nik ? msg.nik : "")}</p>`)
-                                            $('#hp').append(`<p style="color:red;">${(msg.hp ? msg.hp : "")}</p>`)
-                                            $('#email').append(`<p style="color:red;">${(msg.email ? msg.email : "")}</p>`)
-                                            $('#alamat').append(`<p style="color:red;">${(msg.alamat ? msg.alamat : "")}</p>`)
+                                            $("[id*=err_]").html('')
+                                            $('#err_tgl_pesanan').append(`<p style="color:red;">${(msg.tgl_pesanan ? msg.tgl_pesanan : "")}</p>`)
+                                            $('#err_nama').append(`<p style="color:red;">${(msg.nama ? msg.nama : "")}</p>`)
+                                            $('#err_nik').append(`<p style="color:red;">${(msg.nik ? msg.nik : "")}</p>`)
+                                            $('#err_hp').append(`<p style="color:red;">${(msg.hp ? msg.hp : "")}</p>`)
+                                            $('#err_email').append(`<p style="color:red;">${(msg.email ? msg.email : "")}</p>`)
+                                            $('#err_alamat').append(`<p style="color:red;">${(msg.alamat ? msg.alamat : "")}</p>`)
                                         }else{
                                             $("#Dialog").dialog('close');
-                                            $("#jqGrid").jqGrid('setGridParam', {
-                                                datatype: 'json',
-                                                postData: {
-                                                    filters: []
+                                            btnClear()
+                                            
+                                            $.ajax({
+                                                url:
+                                                    baseUrl +
+                                                    "/pelanggan/show/" +
+                                                    res.nama +
+                                                    "/" +
+                                                    $("#jqGrid").jqGrid("getGridParam", "sortorder") +
+                                                    "/" +
+                                                    $("#jqGrid").jqGrid("getGridParam", "postData").rows,
+                                                type: "GET",
+                                                dataType: "JSON",
+                                                success: function (result2) {
+                                                    // var res2 = JSON.parse(result2)
+                                                    if (result2.row) {
+                                                        indexRow = result2.row - 1;
+                                                    }
+                                                    selectedPage = result2.page;
+                                                    setTimeout(function () {
+                                                        $("#jqGrid").trigger("reloadGrid", [{ page: selectedPage }]);
+                                                    }, 50);
                                                 },
-                                                search: false,
-                                            }).trigger('reloadGrid');
+                                            })
                                         }
                                     }
                                 });
@@ -318,17 +303,18 @@ $(document).ready(function () {
                                 type: "POST",
                                 url: baseUrl+"/store",
                                 data: data,
-                                dataType: "text",
-                                success: function (result) {
-                                    var res = JSON.parse(result)
+                                dataType: "JSON",
+                                success: function (res) {
+                                    // var res = JSON.parse(result)
                                     var msg = res.msg
                                     if(res.status == 'error'){
-                                        $('#tgl_pesanan').append(`<p style="color:red;">${(msg.tgl_pesanan ? msg.tgl_pesanan : "")}</p>`)
-                                        $('#nama').append(`<p style="color:red;">${(msg.nama ? msg.nama : "")}</p>`)
-                                        $('#nik').append(`<p style="color:red;">${(msg.nik ? msg.nik : "")}</p>`)
-                                        $('#hp').append(`<p style="color:red;">${(msg.hp ? msg.hp : "")}</p>`)
-                                        $('#email').append(`<p style="color:red;">${(msg.email ? msg.email : "")}</p>`)
-                                        $('#alamat').append(`<p style="color:red;">${(msg.alamat ? msg.alamat : "")}</p>`)
+                                        $("[id*=err_]").html('')
+                                        $('#err_tgl_pesanan').append(`<p style="color:red;">${(msg.tgl_pesanan ? msg.tgl_pesanan : "")}</p>`)
+                                        $('#err_nama').append(`<p style="color:red;">${(msg.nama ? msg.nama : "")}</p>`)
+                                        $('#err_nik').append(`<p style="color:red;">${(msg.nik ? msg.nik : "")}</p>`)
+                                        $('#err_hp').append(`<p style="color:red;">${(msg.hp ? msg.hp : "")}</p>`)
+                                        $('#err_email').append(`<p style="color:red;">${(msg.email ? msg.email : "")}</p>`)
+                                        $('#err_alamat').append(`<p style="color:red;">${(msg.alamat ? msg.alamat : "")}</p>`)
                                     }else{
                                         $("#Dialog").dialog('close');
                                         
@@ -418,6 +404,35 @@ $(document).ready(function () {
         }
     });
 
+
+    $('#keyword').on('keyup', function(){
+        var value = $(this).val();
+        clearTimeout(timeout)
+        timeout = setTimeout(function() {
+            highlightSearch = []
+            $('[id*="gs_"]').val("");
+            $("#jqGrid").jqGrid('setGridParam', {
+                url: baseUrl+'/get',
+                editurl: 'clientArray',
+                mtype: "GET",
+                datatype: 'json',
+                postData: {
+                    filters: '{"groupOp":"OR","rules":[{"field":"nama","op":"in","data":"'+value+'"},{"field":"nik","op":"in","data":"'+value+'"},{"field":"hp","op":"in","data":"'+value+'"},{"field":"email","op":"in","data":"'+value+'"},{"field":"alamat","op":"in","data":"'+value+'"}]}'
+                },
+                search: true,
+            }).trigger('reloadGrid',[{page:1}]);
+            highlightSearch = value
+        }, 500)
+    });
+
+    $('#gsh_jqGrid_rn').append(
+        '<button id="clearBtn" data-toggle="tooltip" title="Clear Search Filter!">X</button>'
+    );
+
+    $("#clearBtn").click(function () {
+        btnClear()
+    });
+
     function report(type) {
 
         let start = document.getElementById('reportStart').value
@@ -430,8 +445,20 @@ $(document).ready(function () {
         var sidx   = $("#jqGrid").jqGrid('getGridParam','sortname');
         var sord   = $("#jqGrid").jqGrid('getGridParam','sortorder');
         var filter = ($("#jqGrid").getGridParam("postData").filters ? $("#jqGrid").getGridParam("postData").filters : '');
-        var global = document.getElementById('keyword').value
 
-        window.open(baseUrl+'/pelanggan/report?global='+global+'&filter='+filter+'&start='+start+'&limit='+limit+'&sidx='+sidx+'&sord='+sord+'&type='+type)
+        window.open(baseUrl+'/pelanggan/report?filter='+filter+'&start='+start+'&limit='+limit+'&sidx='+sidx+'&sord='+sord+'&type='+type)
+    }
+
+    function btnClear() {
+        $('[id*="gs_"]').val("");
+        document.getElementById('keyword').value   = '';
+        $("#jqGrid").jqGrid('setGridParam', {
+            datatype: 'json',
+            postData: {
+                filters: []
+            },
+            search: false,
+        }).trigger('reloadGrid');
+        highlightSearch = '';
     }
 });

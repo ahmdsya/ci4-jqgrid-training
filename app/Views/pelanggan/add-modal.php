@@ -1,16 +1,16 @@
-<style type="text/css">
+<!-- <style type="text/css">
 	input, textarea {
 		text-transform: uppercase;
 		/* padding: 5px; */
 	}
-</style>
+</style> -->
 
 <form id="storeForm">
     <div class="form-group row">
         <label for="edit_tgl_pesanan" class="col-sm-3 col-form-label">Tgl Pesanan</label>
         <div class="col-sm-9">
-            <input type="date" class="form-control" name="tgl_pesanan" id="edit_tgl_pesanan">
-            <div id="tgl_pesanan" style="font-size: 10px;"></div>
+            <input type="text" class="form-control hasDatePicker" name="tgl_pesanan" id="edit_tgl_pesanan">
+            <div id="err_tgl_pesanan" style="font-size: 10px;"></div>
         </div>
     </div>
 
@@ -18,23 +18,23 @@
         <label for="edit_nama" class="col-sm-3 col-form-label">Nama Lengkap</label>
         <div class="col-sm-9">
             <input type="text" class="form-control" name="nama" id="edit_nama">
-            <div id="nama" style="font-size: 10px;"></div>
+            <div id="err_nama" style="font-size: 10px;"></div>
         </div>
     </div>
 
     <div class="form-group row">
         <label for="edit_nik" class="col-sm-3 col-form-label">NIK</label>
         <div class="col-sm-9">
-            <input type="number" class="form-control" name="nik" id="edit_nik">
-            <div id="nik" style="font-size: 10px;"></div>
+            <input type="number" class="form-control nik" name="nik" id="edit_nik">
+            <div id="err_nik" style="font-size: 10px;"></div>
         </div>
     </div>
 
     <div class="form-group row">
         <label for="edit_hp" class="col-sm-3 col-form-label">HP</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control" name="hp" id="edit_hp">
-            <div id="hp" style="font-size: 10px;"></div>
+            <input type="text" class="form-control hp" name="hp" id="edit_hp">
+            <div id="err_hp" style="font-size: 10px;"></div>
         </div>
     </div>
 
@@ -42,7 +42,7 @@
         <label for="edit_email" class="col-sm-3 col-form-label">Email</label>
         <div class="col-sm-9">
             <input type="email" class="form-control" name="email" id="edit_email">
-            <div id="email" style="font-size: 10px;"></div>
+            <div id="err_email" style="font-size: 10px;"></div>
         </div>
     </div>
 
@@ -50,7 +50,7 @@
         <label for="edit_alamat" class="col-sm-3 col-form-label">Alamat</label>
         <div class="col-sm-9">
             <textarea id="edit_alamat" name="alamat" class="form-control"></textarea>
-            <div id="alamat" style="font-size: 10px;"></div>
+            <div id="err_alamat" style="font-size: 10px;"></div>
         </div>
     </div>
 
@@ -100,6 +100,7 @@
 <script>
 
 $(document).ready(function() {
+    setDateFormat()
     setNumericFormat()
 })
 
@@ -124,6 +125,38 @@ function addRow() {
     `)
 }
 
+function setDateFormat() {
+    //date format
+    $('.hasDatePicker').datepicker({
+        dateFormat: 'd-m-yy',
+        yearRange: '2000:2099'
+    }).inputmask({
+        inputFormat: "dd-mm-yyyy",
+        alias: "datetime",
+        minYear: '01-01-2000'
+    })
+    .focusout(function(e) {
+        let val = $(this).val()
+        if (val.match('[a-zA-Z]') == null) {
+            if (val.length == 8) {
+                $(this).inputmask({
+                    inputFormat: "dd-mm-yyyy",
+                }).val([val.slice(0, 6), '20', val.slice(6)].join(''))
+            }
+        } else {
+            $(this).focus()
+        }
+    })
+    .focus(function() {
+        let val = $(this).val()
+        if (val.length == 10) {
+            $(this).inputmask({
+                inputFormat: 'dd-mm-yyyy',
+            }).val([val.slice(0, 6), '', val.slice(8)].join(''))
+        }
+    })
+}
+
 function setNumericFormat() {
     //numeric format
     $('.im-numeric').keypress(function(e){
@@ -133,7 +166,7 @@ function setNumericFormat() {
     })
 
     //currency format
-    $('.im-currency').inputmask('integer', {
+    $('.im-currency, .im-numeric').inputmask('integer', {
         alias: 'numeric',
         groupSeparator: '.',
         autoGroup: true,
@@ -142,14 +175,14 @@ function setNumericFormat() {
         placeholder: '',
     })
 
-    $('.im-numeric').inputmask('integer', {
-        alias: 'numeric',
-        groupSeparator: '',
-        autoGroup: true,
-        digitsOptional: false,
-        allowMinus: false,
-        placeholder: '',
-    })
+    // $('.nik, .hp').inputmask('integer', {
+    //     alias: 'numeric',
+    //     groupSeparator: '',
+    //     autoGroup: true,
+    //     digitsOptional: false,
+    //     allowMinus: false,
+    //     placeholder: '',
+    // })
 }
 
 </script>
