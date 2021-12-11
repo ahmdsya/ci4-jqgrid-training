@@ -316,6 +316,7 @@ $(document).ready(function () {
                                         $('#err_alamat').append(`<p style="color:red;">${(msg.alamat ? msg.alamat : "")}</p>`)
                                     }else{
                                         $("#Dialog").dialog('close');
+                                        btnClear()
                                         
                                         $.ajax({
                                             url:
@@ -457,7 +458,9 @@ $(document).ready(function () {
                 filters: [],
             },
             search: false,
-        }).trigger('reloadGrid', [{current:true}]);
+            sortname: "",
+            sortorder: "asc",
+        }).trigger('reloadGrid');
         highlightSearch = '';
         // highlightSearch = [];
     }

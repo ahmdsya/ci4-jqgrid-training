@@ -70,8 +70,8 @@ class Pelanggan extends BaseController
     public function show($nama, $sort_order, $limit) {
         $db = $this->modelPelanggan->builder();
 
-        $operator = ($sort_order == 'asc') ? '<=' : '>=';
-        // $operator = '<=';
+        // $operator = ($sort_order == 'asc') ? '<=' : '>=';
+        $operator = '<=';
 
         $row   = $db->where('nama '.$operator, $nama)->countAllResults();
         $page  = ceil($row / $limit);
