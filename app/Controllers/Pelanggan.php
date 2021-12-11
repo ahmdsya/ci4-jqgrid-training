@@ -71,6 +71,7 @@ class Pelanggan extends BaseController
         $db = $this->modelPelanggan->builder();
 
         $operator = ($sort_order == 'asc') ? '<=' : '>=';
+        // $operator = '<=';
 
         $row   = $db->where('nama '.$operator, $nama)->countAllResults();
         $page  = ceil($row / $limit);
@@ -148,7 +149,7 @@ class Pelanggan extends BaseController
                 'nama_produk'  => strtoupper($nama_produk[$i]),
                 'harga'        => str_replace('.', '', $harga[$i]),
                 'qty'          => str_replace('.', '', $qty[$i]),
-                'total_harga'  => str_replace('.', '', $harga[$i]) * $qty[$i]
+                'total_harga'  => str_replace('.', '', $harga[$i]) * str_replace('.', '', $qty[$i])
             ];
 
             $this->modelPesanan->insert($dataPesanan);
@@ -191,8 +192,8 @@ class Pelanggan extends BaseController
                 'pelanggan_id' => $id,
                 'nama_produk'  => strtoupper($nama_produk[$i]),
                 'harga'        => str_replace('.', '', $harga[$i]),
-                'qty'          => $qty[$i],
-                'total_harga'  => str_replace('.', '', $harga[$i]) * $qty[$i]
+                'qty'          => str_replace('.', '', $qty[$i]),
+                'total_harga'  => str_replace('.', '', $harga[$i]) * str_replace('.', '', $qty[$i])
             ];
 
             $this->modelPesanan->insert($dataPesanan);

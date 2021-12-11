@@ -16,14 +16,14 @@
     <div class="form-group row">
         <label for="edit_nik" class="col-sm-3 col-form-label">NIK</label>
         <div class="col-sm-9">
-            <input type="number" class="form-control" name="nik" id="edit_nik" value="<?= $pelanggan->nik ?>" readonly>
+            <input type="text" class="form-control nik-number" name="nik" id="edit_nik" value="<?= $pelanggan->nik ?>" readonly>
         </div>
     </div>
 
     <div class="form-group row">
         <label for="edit_hp" class="col-sm-3 col-form-label">HP</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control" name="hp" id="edit_hp" value="<?= $pelanggan->hp ?>" readonly>
+            <input type="text" class="form-control hp-number" name="hp" id="edit_hp" value="<?= $pelanggan->hp ?>" readonly>
         </div>
     </div>
 
@@ -47,8 +47,8 @@
         <thead>
             <tr>
                 <th>Nama Produk</th>
-                <th>Harga</th>
                 <th>Qty</th>
+                <th>Harga</th>
             </tr>
         </thead>
         <tbody id="clearBody">
@@ -59,11 +59,11 @@
                         autocomplete="off" readonly>
                 </td>
                 <td>
-                    <input type="text" name="harga[]" value="<?= $pesanan->harga ?>" id="edit_harga" class="form-control im-currency" required
+                    <input type="text" name="qty[]" value="<?= $pesanan->qty ?>" id="edit_qty" class="form-control im-numeric" required
                         autocomplete="off" readonly>
                 </td>
                 <td>
-                    <input type="text" name="qty[]" value="<?= $pesanan->qty ?>" id="edit_qty" class="form-control im-numeric" required
+                    <input type="text" name="harga[]" value="<?= $pesanan->harga ?>" id="edit_harga" class="form-control im-currency" required
                         autocomplete="off" readonly>
                 </td>
             </tr>
@@ -87,9 +87,18 @@ function setNumericFormat() {
     })
 
     //currency format
-    $('.im-currency').inputmask('integer', {
+    $('.im-currency, .im-numeric').inputmask('integer', {
         alias: 'numeric',
         groupSeparator: '.',
+        autoGroup: true,
+        digitsOptional: false,
+        allowMinus: false,
+        placeholder: '',
+    })
+
+    $('.nik-number, .hp-number').inputmask('integer', {
+        alias: 'numeric',
+        groupSeparator: '',
         autoGroup: true,
         digitsOptional: false,
         allowMinus: false,

@@ -1,4 +1,5 @@
 let highlightSearch;
+// let highlightSearch = [];
 let indexRow = 0;
 let timeout = null
 
@@ -64,6 +65,7 @@ $(document).ready(function () {
 
                 $("[id*=gs_]").on("input", function () {
                     highlightSearch = $(this).val();
+                    // highlightSearch.push($(this).val());
                 });
 
                 rowNum = $("#jqGrid").jqGrid('getGridParam', 'rowNum');
@@ -112,6 +114,7 @@ $(document).ready(function () {
         },
         afterClear: function(){
             highlightSearch = ''
+            // highlightSearch = []
         }
     })
     .navGrid('#jqGridPager',
@@ -165,7 +168,7 @@ $(document).ready(function () {
                 .load(baseUrl+'/delete/'+id)
                 .dialog({
                     width   : 600,
-                    height: 500,
+                    height  : 500,
                     position: 'top',
                     modal   : true,
                     title   : "Delete Data",
@@ -218,14 +221,12 @@ $(document).ready(function () {
                             text: "Save",
                             click: function () {
                                 var data = $('#updateForm').serialize()
-                                // console.log(data)
                                 $.ajax({
                                     type: "POST",
                                     url: baseUrl+"/update/"+id,
                                     data: data,
                                     dataType: "JSON",
                                     success: function (res) {
-                                        // var res = JSON.parse(result)
                                         var msg = res.msg
                                         if(res.status == 'error'){
                                             $("[id*=err_]").html('')
@@ -251,7 +252,6 @@ $(document).ready(function () {
                                                 type: "GET",
                                                 dataType: "JSON",
                                                 success: function (result2) {
-                                                    // var res2 = JSON.parse(result2)
                                                     if (result2.row) {
                                                         indexRow = result2.row - 1;
                                                     }
@@ -305,7 +305,6 @@ $(document).ready(function () {
                                 data: data,
                                 dataType: "JSON",
                                 success: function (res) {
-                                    // var res = JSON.parse(result)
                                     var msg = res.msg
                                     if(res.status == 'error'){
                                         $("[id*=err_]").html('')
@@ -330,7 +329,6 @@ $(document).ready(function () {
                                             type: "GET",
                                             dataType: "JSON",
                                             success: function (result2) {
-                                                // var res2 = JSON.parse(result2)
                                                 if (result2.row) {
                                                     indexRow = result2.row - 1;
                                                 }
@@ -409,7 +407,7 @@ $(document).ready(function () {
         var value = $(this).val();
         clearTimeout(timeout)
         timeout = setTimeout(function() {
-            highlightSearch = []
+            // highlightSearch = []
             $('[id*="gs_"]').val("");
             $("#jqGrid").jqGrid('setGridParam', {
                 url: baseUrl+'/get',
@@ -422,6 +420,7 @@ $(document).ready(function () {
                 search: true,
             }).trigger('reloadGrid',[{page:1}]);
             highlightSearch = value
+            // highlightSearch.push(value)
         }, 500)
     });
 
@@ -451,14 +450,15 @@ $(document).ready(function () {
 
     function btnClear() {
         $('[id*="gs_"]').val("");
-        document.getElementById('keyword').value   = '';
+        document.getElementById('keyword').value = '';
         $("#jqGrid").jqGrid('setGridParam', {
             datatype: 'json',
             postData: {
-                filters: []
+                filters: [],
             },
             search: false,
-        }).trigger('reloadGrid');
+        }).trigger('reloadGrid', [{current:true}]);
         highlightSearch = '';
+        // highlightSearch = [];
     }
 });

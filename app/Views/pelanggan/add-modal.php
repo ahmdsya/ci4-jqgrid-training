@@ -25,7 +25,7 @@
     <div class="form-group row">
         <label for="edit_nik" class="col-sm-3 col-form-label">NIK</label>
         <div class="col-sm-9">
-            <input type="number" class="form-control nik" name="nik" id="edit_nik">
+            <input type="text" class="form-control nik-number" name="nik" id="edit_nik">
             <div id="err_nik" style="font-size: 10px;"></div>
         </div>
     </div>
@@ -33,7 +33,7 @@
     <div class="form-group row">
         <label for="edit_hp" class="col-sm-3 col-form-label">HP</label>
         <div class="col-sm-9">
-            <input type="text" class="form-control hp" name="hp" id="edit_hp">
+            <input type="text" class="form-control hp-number" name="hp" id="edit_hp">
             <div id="err_hp" style="font-size: 10px;"></div>
         </div>
     </div>
@@ -60,8 +60,8 @@
         <thead>
             <tr>
                 <th>Nama Produk</th>
-                <th>Harga</th>
                 <th>Qty</th>
+                <th>Harga</th>
             </tr>
         </thead>
         <tbody id="clearBody">
@@ -71,11 +71,11 @@
                         autocomplete="off">
                 </td>
                 <td>
-                    <input type="text" name="harga[]" id="edit_harga" class="form-control im-currency" required
+                    <input type="text" name="qty[]" id="edit_qty" class="form-control im-numeric" required
                         autocomplete="off">
                 </td>
                 <td>
-                    <input type="text" name="qty[]" id="edit_qty" class="form-control im-numeric" required
+                    <input type="text" name="harga[]" id="edit_harga" class="form-control im-currency" required
                         autocomplete="off">
                 </td>
                 <td>
@@ -111,10 +111,10 @@ function addRow() {
                 <input type="text" name="nama_produk[]" id="edit_nama_produk" class="form-control" required autocomplete="off">
             </td>
             <td>
-                <input type="text" name="harga[]" id="edit_harga" class="form-control im-currency" required autocomplete="off">
+                <input type="text" name="qty[]" id="edit_qty" class="form-control im-numeric" required autocomplete="off">
             </td>
             <td>
-                <input type="text" name="qty[]" id="edit_qty" class="form-control im-numeric" required autocomplete="off">
+                <input type="text" name="harga[]" id="edit_harga" class="form-control im-currency" required autocomplete="off">
             </td>
             <td>
                 <a href="javascript:">
@@ -175,14 +175,14 @@ function setNumericFormat() {
         placeholder: '',
     })
 
-    // $('.nik, .hp').inputmask('integer', {
-    //     alias: 'numeric',
-    //     groupSeparator: '',
-    //     autoGroup: true,
-    //     digitsOptional: false,
-    //     allowMinus: false,
-    //     placeholder: '',
-    // })
+    $('.nik-number, .hp-number').inputmask('integer', {
+        alias: 'numeric',
+        groupSeparator: '',
+        autoGroup: true,
+        digitsOptional: false,
+        allowMinus: false,
+        placeholder: '',
+    })
 }
 
 </script>
