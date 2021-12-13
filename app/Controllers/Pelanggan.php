@@ -67,14 +67,16 @@ class Pelanggan extends BaseController
         return $this->response->setJSON($data);
     }
 
-    public function show($nama, $sort_order, $limit) {
+    public function show($postData, $sort_name, $sort_order, $limit) {
         $db = $this->modelPelanggan->builder();
 
-        // $operator = ($sort_order == 'asc') ? '<=' : '>=';
-        $operator = '<=';
+        $operator = ($sort_order == 'asc') ? '<=' : '>=';
 
-        // $db->orderBy($sort_name, $sort_order);
-        $row   = $db->where("nama $operator", $nama)->countAllResults();
+        $db->orderBy($sort_name, $sort_order);
+
+        if ($sort_name == 'tgl_pesanan') $postData = date('Y-m-d', strtotime($postData));
+
+        $row   = $db->where($sort_name . $operator, $postData)->countAllResults();
         $page  = ceil($row / $limit);
        
         if ($page > 1) $row -= $limit * ($page - 1);
@@ -160,13 +162,8 @@ class Pelanggan extends BaseController
         $this->modelPesanan->where('nama_produk', '')->delete();
 
         return $this->response->setJSON([
-            'status'      => 'success',
-            'tgl_pesanan' => date('Y-m-d', strtotime($this->request->getPost('tgl_pesanan'))),
-            'nama'        => strtoupper($this->request->getPost('nama')),
-            'nik'         => $this->request->getPost('nik'),
-            'hp'          => $this->request->getPost('hp'),
-            'email'       => strtoupper($this->request->getPost('email')),
-            'alamat'      => strtoupper($this->request->getPost('alamat')),
+            'status'   => 'success',
+            'postData' => $this->request->getPost()
         ]);
     }
 
@@ -212,13 +209,8 @@ class Pelanggan extends BaseController
         $this->modelPesanan->where('nama_produk', '')->delete();
 
         return $this->response->setJSON([
-            'status'      => 'success',
-            'tgl_pesanan' => date('Y-m-d', strtotime($this->request->getPost('tgl_pesanan'))),
-            'nama'        => strtoupper($this->request->getPost('nama')),
-            'nik'         => $this->request->getPost('nik'),
-            'hp'          => $this->request->getPost('hp'),
-            'email'       => strtoupper($this->request->getPost('email')),
-            'alamat'      => strtoupper($this->request->getPost('alamat')),
+            'status'   => 'success',
+            'postData' => $this->request->getPost()
         ]);
     }
 

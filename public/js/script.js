@@ -1,7 +1,8 @@
 let highlightSearch;
 // let highlightSearch = [];
 let indexRow = 0;
-let timeout = null
+let timeout  = null;
+let sortName = "nama";
 
 $(document).ready(function () {
     
@@ -97,6 +98,7 @@ $(document).ready(function () {
         height: 'auto',
         rowNum: 10,
         rowList: [10, 20, 30],
+        sortname: sortName,
 		rownumbers: true,
         loadonce: false,
         gridview: true,
@@ -244,7 +246,7 @@ $(document).ready(function () {
                                                 url:
                                                     baseUrl +
                                                     "/pelanggan/show/" +
-                                                    res.nama +
+                                                    res.postData.nama +
                                                     "/" +
                                                     $("#jqGrid").jqGrid("getGridParam", "sortorder") +
                                                     "/" +
@@ -299,6 +301,7 @@ $(document).ready(function () {
                         text: "Submit",
                         click: function () {
                             var data = $('#storeForm').serialize()
+                            // console.log(data)
                             $.ajax({
                                 type: "POST",
                                 url: baseUrl+"/store",
@@ -306,6 +309,20 @@ $(document).ready(function () {
                                 dataType: "JSON",
                                 success: function (res) {
                                     var msg = res.msg
+                                    // var url = baseUrl +
+                                    //         "/pelanggan/show/" +
+                                    //         // res.postData.nama +
+                                    //         // "/" +
+                                    //         res.postData[$("#jqGrid").jqGrid("getGridParam", "sortname")] +
+                                    //         "/" +
+                                    //         $("#jqGrid").jqGrid("getGridParam", "sortname") +
+                                    //         "/" +
+                                    //         $("#jqGrid").jqGrid("getGridParam", "sortorder") +
+                                    //         "/" +
+                                    //         $("#jqGrid").jqGrid("getGridParam", "postData").rows
+                                    
+                                    // console.log(url)
+
                                     if(res.status == 'error'){
                                         $("[id*=err_]").html('')
                                         $('#err_tgl_pesanan').append(`<p style="color:red;">${(msg.tgl_pesanan ? msg.tgl_pesanan : "")}</p>`)
@@ -319,10 +336,13 @@ $(document).ready(function () {
                                         btnClear()
                                         
                                         $.ajax({
-                                            url:
-                                                baseUrl +
+                                            url: baseUrl +
                                                 "/pelanggan/show/" +
-						                        res.nama +
+                                                // res.postData.nama +
+                                                // "/" +
+                                                res.postData[$("#jqGrid").jqGrid("getGridParam", "sortname")] +
+                                                "/" +
+                                                $("#jqGrid").jqGrid("getGridParam", "sortname") +
                                                 "/" +
                                                 $("#jqGrid").jqGrid("getGridParam", "sortorder") +
                                                 "/" +
@@ -458,8 +478,8 @@ $(document).ready(function () {
                 filters: [],
             },
             search: false,
-            sortname: "",
-            sortorder: "asc",
+            // sortname: "",
+            // sortorder: "asc",
         }).trigger('reloadGrid');
         highlightSearch = '';
         // highlightSearch = [];
