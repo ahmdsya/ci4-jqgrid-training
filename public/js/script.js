@@ -322,7 +322,7 @@ $(document).ready(function () {
                                             url:
                                                 baseUrl +
                                                 "/pelanggan/show/" +
-                                                res.nama +
+						                        res.nama +
                                                 "/" +
                                                 $("#jqGrid").jqGrid("getGridParam", "sortorder") +
                                                 "/" +

@@ -73,7 +73,8 @@ class Pelanggan extends BaseController
         // $operator = ($sort_order == 'asc') ? '<=' : '>=';
         $operator = '<=';
 
-        $row   = $db->where('nama '.$operator, $nama)->countAllResults();
+        // $db->orderBy($sort_name, $sort_order);
+        $row   = $db->where("nama $operator", $nama)->countAllResults();
         $page  = ceil($row / $limit);
        
         if ($page > 1) $row -= $limit * ($page - 1);
@@ -158,7 +159,15 @@ class Pelanggan extends BaseController
         //delete data pesanan yang kosong
         $this->modelPesanan->where('nama_produk', '')->delete();
 
-        return $this->response->setJSON(['status' => 'success', 'nama' => strtoupper($this->request->getPost('nama'))]);
+        return $this->response->setJSON([
+            'status'      => 'success',
+            'tgl_pesanan' => date('Y-m-d', strtotime($this->request->getPost('tgl_pesanan'))),
+            'nama'        => strtoupper($this->request->getPost('nama')),
+            'nik'         => $this->request->getPost('nik'),
+            'hp'          => $this->request->getPost('hp'),
+            'email'       => strtoupper($this->request->getPost('email')),
+            'alamat'      => strtoupper($this->request->getPost('alamat')),
+        ]);
     }
 
     public function update($id)
@@ -202,7 +211,15 @@ class Pelanggan extends BaseController
         //delete data pesanan yang kosong
         $this->modelPesanan->where('nama_produk', '')->delete();
 
-        return $this->response->setJSON(['status' => 'success', 'nama' => strtoupper($this->request->getPost('nama'))]);
+        return $this->response->setJSON([
+            'status'      => 'success',
+            'tgl_pesanan' => date('Y-m-d', strtotime($this->request->getPost('tgl_pesanan'))),
+            'nama'        => strtoupper($this->request->getPost('nama')),
+            'nik'         => $this->request->getPost('nik'),
+            'hp'          => $this->request->getPost('hp'),
+            'email'       => strtoupper($this->request->getPost('email')),
+            'alamat'      => strtoupper($this->request->getPost('alamat')),
+        ]);
     }
 
     public function destroy($id)
