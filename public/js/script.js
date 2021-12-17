@@ -69,6 +69,8 @@ $(document).ready(function () {
                     // highlightSearch.push($(this).val());
                 });
 
+                currentPage = $('#jqGrid').getGridParam('page');
+                lastPage = $('#jqGrid').getGridParam('lastpage');
                 rowNum = $("#jqGrid").jqGrid('getGridParam', 'rowNum');
                 ids = $("#jqGrid").jqGrid('getDataIDs');
                 $('#jqGrid').jqGrid('setSelection', ids[indexRow]);
@@ -81,6 +83,26 @@ $(document).ready(function () {
                     }else if(event.which == 40){ //tombol bawah
                         if(index != rowNum){
                             $('#jqGrid').jqGrid('setSelection', ids[index = index+1]);
+                        }
+                    }else if(event.which == 33){ //tombol page up
+                        if(currentPage == 1){
+                            setTimeout(function () {
+                                $("#jqGrid").trigger("reloadGrid", [{ page: 1 }]);
+                            }, 50);
+                        }else if(currentPage > 1){
+                            setTimeout(function () {
+                                $("#jqGrid").trigger("reloadGrid", [{ page: currentPage - 1 }]);
+                            }, 50);
+                        }
+                    }else if(event.which == 34){ //tombol page down
+                        if(currentPage >= 1){
+                            setTimeout(function () {
+                                $("#jqGrid").trigger("reloadGrid", [{ page: currentPage + 1 }]);
+                            }, 50);
+                        }else if(currentPage == lastPage){
+                            setTimeout(function () {
+                                $("#jqGrid").trigger("reloadGrid", [{ page: lastPage }]);
+                            }, 50);
                         }
                     }
                 })
@@ -141,8 +163,8 @@ $(document).ready(function () {
         page: 1,
         colModel: [
                 { label: 'Nama Produk', name: 'nama_produk', width: 100 },
-                { label: 'Harga', name: 'harga', width: 75, align: "right", formatter:'currency', formatoptions:{thousandsSeparator: ".", prefix: "Rp. "}},
                 { label: 'Kuantitas', name: 'qty', width: 50, align: "right" },
+                { label: 'Harga', name: 'harga', width: 75, align: "right", formatter:'currency', formatoptions:{thousandsSeparator: ".", prefix: "Rp. "}},
                 { label: 'Total Harga', name: 'total_harga', width: 75, align: "right", formatter:'currency', formatoptions:{thousandsSeparator: ".", prefix: "Rp. "}},
         ],
         width: 780,
@@ -309,19 +331,6 @@ $(document).ready(function () {
                                 dataType: "JSON",
                                 success: function (res) {
                                     var msg = res.msg
-                                    // var url = baseUrl +
-                                    //         "/pelanggan/show/" +
-                                    //         // res.postData.nama +
-                                    //         // "/" +
-                                    //         res.postData[$("#jqGrid").jqGrid("getGridParam", "sortname")] +
-                                    //         "/" +
-                                    //         $("#jqGrid").jqGrid("getGridParam", "sortname") +
-                                    //         "/" +
-                                    //         $("#jqGrid").jqGrid("getGridParam", "sortorder") +
-                                    //         "/" +
-                                    //         $("#jqGrid").jqGrid("getGridParam", "postData").rows
-                                    
-                                    // console.log(url)
 
                                     if(res.status == 'error'){
                                         $("[id*=err_]").html('')

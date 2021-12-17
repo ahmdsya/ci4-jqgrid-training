@@ -62,33 +62,44 @@
                 <th>Nama Produk</th>
                 <th>Qty</th>
                 <th>Harga</th>
+                <th>Total Harga</th>
             </tr>
         </thead>
         <tbody id="clearBody">
-            <?php foreach($pelanggan->pesanan as $pesanan): ?>
+            <?php $total = 0; $tHarga = []; foreach($pelanggan->pesanan as $pesanan): ?>
+            <?php
+                $total += $pesanan->total_harga;
+                $tHarga[] = (int)$pesanan->total_harga;
+            ?>
             <tr>
                 <td>
                     <input type="text" name="nama_produk[]" value="<?= $pesanan->nama_produk ?>" id="edit_nama_produk" class="form-control" required
                         autocomplete="off">
                 </td>
                 <td>
-                    <input type="text" name="qty[]" value="<?= $pesanan->qty ?>" id="edit_qty" class="form-control im-numeric" required
-                        autocomplete="off">
+                    <input type="text" name="qty[]" value="<?= $pesanan->qty ?>" id="qty" class="form-control im-numeric" required
+                        autocomplete="off" onkeyup="keyUpQty(this)">
                 </td>
                 <td>
-                    <input type="text" name="harga[]" value="<?= $pesanan->harga ?>" id="edit_harga" class="form-control im-currency" required
-                        autocomplete="off">
+                    <input type="text" name="harga[]" value="<?= $pesanan->harga ?>" id="harga" class="form-control im-currency" required
+                        autocomplete="off" onkeyup="keyUpHarga(this)">
                 </td>
                 <td>
-                    <a href="javascript:">
+                    <input type="text" name="total_harga[]" id="total_harga" value="<?= $pesanan->total_harga ?>" class="form-control im-currency" readonly>
+                </td>
+                <td>
+                    <a href="javascript:" class="btnDelItem">
                         <span class="ui-icon ui-icon-trash" style="margin-top: 10px;"
-                            onclick="$(this).parent().parent().parent().remove()"></span>
+                            onclick="btnRemove($(this))"></span>
                     </a>
                 </td>
             </tr>
             <?php endforeach; ?>
             <tr>
                 <td colspan="3"></td>
+                <td>
+                    <input type="text" name="total[]" id="total" value="<?= $total ?>" class="form-control im-currency" readonly>
+                </td>
                 <td>
                     <a href="javascript:" onclick="addRow();setNumericFormat()">
                         <span class="glyphicon glyphicon-plus"></span>
@@ -101,10 +112,52 @@
 
 <script>
 
+let timeout = null;
+let qty     = 0;
+let harga   = 0;
+let tHarga  = JSON.parse('<?= json_encode($tHarga) ?>');
+
 $(document).ready(function() {
     setNumericFormat()
     setDateFormat()
 })
+
+function keyUpQty(e){
+    clearTimeout(timeout)
+    timeout = setTimeout(function() {
+        qty = e.value;
+    }, 500)
+}
+
+function keyUpHarga(e){
+    
+    clearTimeout(timeout)
+    timeout = setTimeout(function() {
+        if(harga.length >= 3){
+            tHarga.push(qty * harga.replace('.',''));
+            upTotal()
+        }
+    }, 500)
+}
+
+function btnRemove(e){
+    if($('.btnDelItem').length > 1){
+        var rowIndex = e.parent().parent().parent()[0].rowIndex;
+        tHarga.splice(rowIndex - 1, 1);
+        e.parent().parent().parent().remove();
+        upTotal();
+    }
+}
+
+function upTotal(){
+    var total = 0;
+    var total_harga = document.getElementsByName('total_harga[]');
+    for (let i = 0; i < total_harga.length; i++) {
+        total_harga[i].value = tHarga[i];
+        total = total + tHarga[i];
+        document.getElementById('total').value = total;
+    }
+}
 
 function addRow() {
     $('#masterDetail tbody tr').last().before(`
@@ -113,14 +166,17 @@ function addRow() {
                 <input type="text" name="nama_produk[]" id="edit_nama_produk" class="form-control" required autocomplete="off">
             </td>
             <td>
-                <input type="text" name="qty[]" id="edit_qty" class="form-control im-numeric" required autocomplete="off">
+                <input type="text" name="qty[]" id="edit_qty" class="form-control im-numeric" required autocomplete="off" onkeyup="keyUpQty(this)">
             </td>
             <td>
-                <input type="text" name="harga[]" id="edit_harga" class="form-control im-currency" required autocomplete="off">
+                <input type="text" name="harga[]" id="edit_harga" class="form-control im-currency" required autocomplete="off" onkeyup="keyUpHarga(this)">
             </td>
             <td>
-                <a href="javascript:">
-                    <span class="ui-icon ui-icon-trash" style="margin-top: 10px;" onclick="$(this).parent().parent().parent().remove()"></span>
+                <input type="text" name="total_harga[]" id="total_harga" class="form-control im-currency" readonly>
+            </td>
+            <td>
+                <a href="javascript:" class="btnDelItem">
+                    <span class="ui-icon ui-icon-trash" style="margin-top: 10px;" onclick="btnRemove($(this))"></span>
                 </a>
             </td>
         </tr>
@@ -177,14 +233,14 @@ function setNumericFormat() {
         placeholder: '',
     })
 
-    $('.nik-number, .hp-number').inputmask('integer', {
-        alias: 'numeric',
-        groupSeparator: '',
-        autoGroup: true,
-        digitsOptional: false,
-        allowMinus: false,
-        placeholder: '',
-    })
+    // $('.nik-number, .hp-number').inputmask('integer', {
+    //     alias: 'numeric',
+    //     groupSeparator: '',
+    //     autoGroup: true,
+    //     digitsOptional: false,
+    //     allowMinus: false,
+    //     placeholder: '',
+    // })
 }
 
 </script>

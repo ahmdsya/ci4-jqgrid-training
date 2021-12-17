@@ -98,7 +98,7 @@ class Pelanggan extends BaseController
         $pelanggan->pesanan = $tbPesanan->get()->getResult();
 
         $data = [
-            'pelanggan' => $pelanggan
+            'pelanggan'   => $pelanggan
         ];
 
         return view('pelanggan/edit-modal', $data);
@@ -263,7 +263,7 @@ class Pelanggan extends BaseController
 		];
 
         if($type == "stimulsoft"){
-            return view('pelanggan/report', $data);
+            return view('pelanggan/stimulsoft', $data);
         }else{
             return view('pelanggan/excel', $data);
         }        

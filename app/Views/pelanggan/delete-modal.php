@@ -49,10 +49,14 @@
                 <th>Nama Produk</th>
                 <th>Qty</th>
                 <th>Harga</th>
+                <th>Total Harga</th>
             </tr>
         </thead>
         <tbody id="clearBody">
-            <?php foreach($pelanggan->pesanan as $pesanan): ?>
+            <?php $total = 0; foreach($pelanggan->pesanan as $pesanan): ?>
+            <?php
+                $total += $pesanan->total_harga;
+            ?>
             <tr>
                 <td>
                     <input type="text" name="nama_produk[]" value="<?= $pesanan->nama_produk ?>" id="edit_nama_produk" class="form-control" required
@@ -66,8 +70,17 @@
                     <input type="text" name="harga[]" value="<?= $pesanan->harga ?>" id="edit_harga" class="form-control im-currency" required
                         autocomplete="off" readonly>
                 </td>
+                <td>
+                    <input type="text" name="total_harga[]" id="total_harga" value="<?= $pesanan->total_harga ?>" class="form-control im-currency" readonly>
+                </td>
             </tr>
             <?php endforeach; ?>
+            <tr>
+                <td colspan="3"></td>
+                <td>
+                    <input type="text" name="total[]" id="total" value="<?= $total ?>" class="form-control im-currency" readonly>
+                </td>
+            </tr>
         </tbody>
     </table>
 </form>
@@ -96,14 +109,14 @@ function setNumericFormat() {
         placeholder: '',
     })
 
-    $('.nik-number, .hp-number').inputmask('integer', {
-        alias: 'numeric',
-        groupSeparator: '',
-        autoGroup: true,
-        digitsOptional: false,
-        allowMinus: false,
-        placeholder: '',
-    })
+    // $('.nik-number, .hp-number').inputmask('integer', {
+    //     alias: 'numeric',
+    //     groupSeparator: '',
+    //     autoGroup: true,
+    //     digitsOptional: false,
+    //     allowMinus: false,
+    //     placeholder: '',
+    // })
 }
 
 </script>
