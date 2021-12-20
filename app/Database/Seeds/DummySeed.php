@@ -11,7 +11,7 @@ class DummySeed extends \CodeIgniter\Database\Seeder
         $modelPelanggan = new Pelanggan_m();
         $modelPesanan = new Pesanan_m();
         
-        $faker = \Faker\Factory::create('id_ID');
+        $faker = \Faker\Factory::create();
 
         for ($i=0; $i < 10000; $i++) { 
 
